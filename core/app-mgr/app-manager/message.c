@@ -40,11 +40,12 @@ bool send_coap_packet_to_host(coap_packet_t * packet)
 
 bool send_request_to_host(request_t *msg)
 {
+    /*
     if (COAP_EVENT == msg->action && !event_is_registered(msg->url)) {
         app_manager_printf("Event is not registered\n");
         return false;
     }
-
+    */
     int size;
     char * packet = pack_request(msg, &size);
     if (packet == NULL)

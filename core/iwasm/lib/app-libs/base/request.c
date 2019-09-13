@@ -21,10 +21,6 @@
 
 #define TRANSACTION_TIMEOUT_MS 5000
 
-typedef enum {
-    Reg_Event, Reg_Request
-} reg_type_t;
-
 typedef struct _res_register {
     struct _res_register *next;
     const char * url;
@@ -103,10 +99,10 @@ static void transaction_remove(transaction_t *trans)
 
 static bool is_event_type(request_t * req)
 {
-    return req->action == COAP_EVENT;
+    return req->action == COAP_EVENT || req->action == COAP_EVENT_SUB || req->action == COAP_EVENT_UNSUB || req->action == COAP_EVENT_PUB;
 }
 
-static bool register_url_handler(const char *url,
+bool register_url_handler(const char *url,
         request_handler_f request_handler, reg_type_t reg_type)
 {
     res_register_t * r = g_resources;
@@ -309,8 +305,13 @@ void on_request(char *buffer, int size)
     while (r) {
         if ((is_event && r->reg_type == Reg_Event)
                 || (!is_event && r->reg_type == Reg_Request)) {
-            if (check_url_start(request->url, strlen(request->url), r->url)
-                    > 0) {
+            if (check_url_start(request->url, strlen(request->url), r->url) > 0) {
+                r->request_handler(request);
+                return;
+            }
+        } else if (is_event && r->reg_type == Reg_Event_Arena) {
+            if (check_url_start(request->url, strlen(request->url), r->url+strlen("/arena/")) > 0) {
+                request->url = request->url + strlen("/arena/");
                 r->request_handler(request);
                 return;
             }

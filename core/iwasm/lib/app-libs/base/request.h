@@ -24,6 +24,10 @@
 extern "C" {
 #endif
 
+typedef enum {
+    Reg_Event, Reg_Request, Reg_Event_Arena
+} reg_type_t;
+
 /**
  * @typedef request_handler_f
  *
@@ -97,6 +101,18 @@ void api_send_request(request_t * request, response_handler_f response_handler,
  */
 void api_response_send(response_t *response);
 
+
+/**
+ * @brief Register url handler. Allows the implementation of another API using events
+ *
+ * @param response pointer of the response to be sent
+ *
+ * @param url url of the resource
+ * @param request_handler callback function to handle the request to the resource
+ * @param reg_type request type (Reg_Event, Reg_Request)
+ */
+bool register_url_handler(const char *url,
+        request_handler_f request_handler, reg_type_t reg_type);
 
 /*
  *****************

@@ -83,8 +83,8 @@ void wasm_post_request(int32 buffer_offset, int size)
         unsigned int mod_id = app_manager_get_module_id(Module_WASM_App);
         req->sender = mod_id;
 
-        if (req->action == COAP_EVENT) {
-            am_publish_event(req);
+        if (req->action == COAP_EVENT || req->action == COAP_EVENT_PUB) {
+            am_publish_event(req, false);
             return;
         }
 

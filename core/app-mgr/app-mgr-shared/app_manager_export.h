@@ -237,7 +237,7 @@ am_register_event(const char *url, uint32_t reg_client);
 bool
 am_unregister_event(const char *url, uint32_t reg_client);
 
-void am_publish_event(request_t * event);
+void am_publish_event(request_t * event, bool from_host);
 
 void * am_dispatch_request(request_t *request);
 

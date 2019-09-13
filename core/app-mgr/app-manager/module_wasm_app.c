@@ -127,8 +127,8 @@ static void app_instance_queue_callback(void *queue_msg)
         char *buffer;
         int32 buffer_offset;
 
-        app_manager_printf("App %s got request, url %s, action %d\n",
-                m_data->module_name, request->url, request->action);
+        //app_manager_printf("App %s got request, url %s, action %d\n",
+        //        m_data->module_name, request->url, request->action);
 
         func_onRequest = wasm_runtime_lookup_function(inst, "_on_request",
                 "(i32i32)");

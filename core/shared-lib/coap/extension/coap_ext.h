@@ -25,6 +25,9 @@ extern "C" {
 #endif
 
 #define COAP_EVENT (COAP_DELETE + 2)
+#define COAP_EVENT_SUB (COAP_EVENT+1)
+#define COAP_EVENT_UNSUB (COAP_EVENT+2)
+#define  COAP_EVENT_PUB (COAP_EVENT+3)
 
 char * coap_get_full_url_alloc(coap_packet_t * request);
 

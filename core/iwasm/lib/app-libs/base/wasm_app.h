@@ -39,7 +39,7 @@
 #include "sensor.h"
 #include "connection.h"
 #include "timer_wasm_app.h"
-#include "wgl.h"
+//#include "wgl.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,8 +47,8 @@ extern "C" {
 
 /* CoAP request method codes */
 typedef enum {
-    COAP_GET = 1, COAP_POST, COAP_PUT, COAP_DELETE, COAP_EVENT = (COAP_DELETE
-            + 2)
+   COAP_GET = 1, COAP_POST, COAP_PUT, COAP_DELETE, COAP_EVENT = (COAP_DELETE
+           + 2), COAP_EVENT_SUB = (COAP_EVENT+1), COAP_EVENT_UNSUB = (COAP_EVENT+2), COAP_EVENT_PUB = (COAP_EVENT+3)
 } coap_method_t;
 
 /* CoAP response codes */

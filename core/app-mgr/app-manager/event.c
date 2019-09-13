@@ -72,9 +72,15 @@ static bool check_url(const char *url)
 
 bool am_register_event(const char *url, uint32_t reg_client)
 {
-    event_reg_t *current = g_events;
+    event_reg_t *current = g_events;   
+    int offset, is_arena_event;
 
     app_manager_printf("am_register_event adding url:(%s)\n", url);
+
+    if ((offset = check_url_start(url, strlen(url), "/arena/")) > 0) {
+        url+=offset;
+        is_arena_event = true;
+    }
 
     if (!check_url(url)) {
         app_manager_printf("am_register_event: invaild url:(%s)\n", url);
@@ -111,6 +117,17 @@ bool am_register_event(const char *url, uint32_t reg_client)
         s->subscriber_id = reg_client;
         s->next = current->subscribers;
         current->subscribers = s;
+
+        if (is_arena_event == true) {
+            // send subscribe event to host
+            request_t msg;
+            memset(&msg, 0, sizeof(msg));
+            msg.url = (char *)url;
+            msg.action = COAP_EVENT_SUB; // subscribe event
+            msg.payload = (char*) NULL;
+            send_request_to_host(&msg);
+        }
+
         app_manager_printf("client: %d registered event (%s)\n", reg_client,
                 url);
     }
@@ -141,6 +158,14 @@ bool am_unregister_event(const char *url, uint32_t reg_client)
                     g_events = next;
                 bh_free(current);
                 current = next;
+                
+                // send unsubscribe notification to host
+                request_t msg;
+                memset(&msg, 0, sizeof(msg));
+                msg.url = (char *)url;
+                msg.action = COAP_EVENT_UNSUB; // unsubscribe
+                msg.payload = (char*) NULL;
+                send_request_to_host(&msg);              
                 continue;
             }
         }
@@ -151,31 +176,51 @@ bool am_unregister_event(const char *url, uint32_t reg_client)
     return true;
 }
 
-bool event_handle_event_request(uint8_t code, const char *event_url,
+bool event_handle_event_request(request_t *request, const char *event_url,
         uint32_t reg_client)
 {
-    if (code == COAP_PUT) { /* register */
-        return am_register_event(event_url, reg_client);
-    } else if (code == COAP_DELETE) { /* unregister */
+    if (request->action == COAP_PUT) { /* register */
+        return am_register_event(event_url, reg_client); 
+    } else if (request->action == COAP_DELETE) { /* unregister */
         return am_unregister_event(event_url, reg_client);
+    } else if (request->action == COAP_EVENT_PUB) { /* publish from host */
+        request->url = (char*)event_url;
+        am_publish_event(request, true); // send publish event to modules
+/* 
+        // send response to host
+        response_t response[1] = { 0 };
+        make_response_for_request(request, response);
+            set_response(response, CONTENT_2_05,
+                FMT_ATTR_CONTAINER, (char*) NULL, 0);
+        send_response_to_host(response);
+*/
+        return true;
     } else {
         /* invalid request */
         return false;
     }
+    return false;
 }
 
-void am_publish_event(request_t * event)
+void am_publish_event(request_t *event, bool from_host)
 {
-    bh_assert(event->action == COAP_EVENT);
+    bh_assert(event->action == COAP_EVENT || event->action == COAP_EVENT_PUB);
+
+    printf("publish event: '%s'\n", event->url);
+
+    if (from_host == false && event->action == COAP_EVENT_PUB) { // COAP_EVENT_PUB comes from arena_publish_event()
+        send_request_to_host(event); // send arena publish events to host
+        return; // do not deliver arena publish events to modules (they will come back through mqtt)
+    } 
 
     event_reg_t *current = g_events;
     while (current) {
+        printf ("=? %s\n", current->url);
         if (0 == strcmp(event->url, current->url)) {
+            printf("found subs\n");
             subscribe_t* c = current->subscribers;
             while (c) {
-                if (c->subscriber_id == ID_HOST) {
-                    send_request_to_host(event);
-                } else {
+                if (c->subscriber_id != ID_HOST) {
                     module_request_handler(event, (void *)c->subscriber_id);
                 }
                 c = c->next;

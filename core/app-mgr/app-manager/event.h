@@ -18,6 +18,7 @@
 #define _EVENT_H_
 
 #include "bh_platform.h"
+#include "shared_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,14 +27,14 @@ extern "C" {
 /**
  * Handle event request from host agent
  *
- * @param code the coap packet code
- * @param event_url the event url
+ * @param request the request packet
+ * @param event_url the event url (no "/event" at the start)
+ * @param reg_client the module id
  *
  * @return true if success, false otherwise
  */
-bool
-event_handle_event_request(uint8_t code, const char *event_url,
-        uint32_t register);
+bool 
+event_handle_event_request(request_t *request, const char *event_url, uint32_t reg_client);
 
 /**
  * Test whether the event is registered

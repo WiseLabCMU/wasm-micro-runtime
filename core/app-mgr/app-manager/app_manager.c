@@ -37,7 +37,6 @@ void app_manager_post_applets_update_event()
 {
     module_data *m_data;
     attr_container_t *attr_cont;
-    request_t msg;
     int num = 0, i = 0;
     char *url = "/applets";
 
@@ -82,12 +81,6 @@ void app_manager_post_applets_update_event()
         }
         m_data = m_data->next;
     }
-
-    memset(&msg, 0, sizeof(msg));
-    msg.url = url;
-    msg.action = COAP_EVENT;
-    msg.payload = (char*) attr_cont;
-    send_request_to_host(&msg);
 
     app_manager_printf("Post applets update event success!\n");
     attr_container_dump(attr_cont);
@@ -317,7 +310,7 @@ static void app_manager_queue_callback(void *message)
 
         strncpy(url_buf, request->url + offset, sizeof(url_buf) - 1);
 
-        if (!event_handle_event_request(request->action, url_buf, ID_HOST)) {
+        if (!event_handle_event_request(request, url_buf, ID_HOST)) {
             SEND_ERR_RESPONSE(mid, "Handle event request failed.");
             goto fail;
         }
