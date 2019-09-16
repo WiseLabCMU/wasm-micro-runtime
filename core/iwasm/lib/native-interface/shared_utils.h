@@ -134,7 +134,7 @@ char * pack_response(response_t *response, int * size);
 response_t * unpack_response(char * packet, int size, response_t * response);
 void free_req_resp_packet(char * packet);
 
-//#include "wgl_shared_utils.h"
+/* #include "wgl_shared_utils.h" */
 
 #ifdef __cplusplus
 }
