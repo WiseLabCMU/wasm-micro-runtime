@@ -37,6 +37,11 @@ char *strcpy(char *dest, const char *src);
 size_t strlen(const char *s);
 int strncmp(const char * str1, const char * str2, size_t n);
 char *strncpy(char *dest, const char *src, unsigned long n);
+char *gcvt(float value, int ndigits, char * buf);
+int rand();
+void srand(unsigned seed);
+time_t time(time_t *second);
+
 
 #ifdef __cplusplus
 }

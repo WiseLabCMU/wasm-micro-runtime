@@ -862,6 +862,34 @@ print_wrapper(int i32)
 }
 #endif
 
+char *_gcvt_wrapper(double x, int ndigit, int32 buf_offset)
+{
+   wasm_module_inst_t module_inst = get_module_inst();
+   char *buf;
+
+    if (!validate_app_addr(buf_offset, 1))
+        return 0;
+
+    buf = addr_app_to_native(buf_offset);
+
+    return gcvt(x, ndigit, buf);
+}
+
+int _rand_wrapper(void)
+{
+    return rand();
+}
+
+void _srand_wrapper( unsigned seed )
+{
+    srand(time(0));
+}
+
+time_t _time_wrapper( time_t *second )
+{
+    return time(second);
+}
+
 /* TODO: add function parameter/result types check */
 #define REG_NATIVE_FUNC(module_name, func_name)     \
     { #module_name, #func_name, func_name##_wrapper }
@@ -907,7 +935,11 @@ static WASMNativeFuncDef native_func_defs[] = {
     REG_NATIVE_FUNC(env, _emscripten_memcpy_big),
     REG_NATIVE_FUNC(env, abort),
     REG_NATIVE_FUNC(env, abortStackOverflow),
-    REG_NATIVE_FUNC(env, nullFunc_X)
+    REG_NATIVE_FUNC(env, nullFunc_X),
+    REG_NATIVE_FUNC(env, _srand),
+    REG_NATIVE_FUNC(env, _rand),
+    REG_NATIVE_FUNC(env, _time),
+    REG_NATIVE_FUNC(env, _gcvt)
 };
 
 void*
