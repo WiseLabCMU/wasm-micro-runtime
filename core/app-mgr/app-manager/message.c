@@ -81,7 +81,7 @@ bool send_error_response_to_host(int mid, int status, const char *msg)
     if (msg) {
         payload = attr_container_create("");
         if (payload) {
-            attr_container_set_string(&payload, "error message", msg);
+            attr_container_set_string(&payload, "data", msg);
             payload_len = attr_container_get_serialize_length(payload);
         }
     }

@@ -42,7 +42,6 @@ int rand();
 void srand(unsigned seed);
 time_t time(time_t *second);
 
-
 #ifdef __cplusplus
 }
 #endif

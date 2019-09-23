@@ -558,12 +558,13 @@ static bool wasm_app_module_install(request_t * msg)
 
         goto fail;
     }
-
     /* only when thread is created it is the flag of installation success */
     app_manager_post_applets_update_event();
 
+    char inst_str_data[100];
+    snprintf(inst_str_data, sizeof(inst_str_data), "{ \"id\":\"%d\", \"name\":\"%s\" }", m_data->id ,m_name);
     app_manager_printf("Install WASM app success!\n");
-    send_error_response_to_host(msg->mid, CREATED_2_01, NULL); /* CREATED */
+    send_error_response_to_host(msg->mid, CREATED_2_01, inst_str_data); /* CREATED */
 
     return true;
 
@@ -633,9 +634,11 @@ static bool wasm_app_module_uninstall(request_t *msg)
 
     app_manager_post_applets_update_event();
 
+    char uninst_str_data[100];
+    snprintf(uninst_str_data, sizeof(uninst_str_data), "{ \"id\":\"%d\", \"name\":\"%s\" }", m_data->id ,m_name);
     app_manager_printf("Uninstall WASM app successful!\n");
 
-    send_error_response_to_host(msg->mid, DELETED_2_02, NULL); /* DELETED */
+    send_error_response_to_host(msg->mid, DELETED_2_02, uninst_str_data); /* DELETED */
     return true;
 }
 
