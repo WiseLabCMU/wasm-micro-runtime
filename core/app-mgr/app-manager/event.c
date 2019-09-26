@@ -125,6 +125,7 @@ bool am_register_event(const char *url, uint32_t reg_client)
             msg.url = (char *)url;
             msg.action = COAP_EVENT_SUB; // subscribe event
             msg.payload = (char*) NULL;
+            msg.sender = reg_client;
             send_request_to_host(&msg);
         }
 
